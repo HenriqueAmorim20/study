@@ -1,5 +1,18 @@
 # Teoria sobre Javascript
 
+## console.time()
+
+Inicia um temporizador que pode ser utilizado para rastrear quanto tempo uma operação leva, possui um nome único e só funciona com blocos de código síncronos
+
+```js
+//start
+console.time("time");
+
+for (let i = 0; i < 100000000; i++)
+  //end
+  console.timeEnd("time");
+```
+
 ## toLocaleString()
 
 Retorna uma string com uma formatação baseado em um idioma(primeiro argumento) e opções (segundo argumento).
@@ -630,4 +643,226 @@ const myTimer = setInterval(() => {
     clearInterval(myTimer);
   }
 }, 1000);
+```
+
+## Date Object
+
+O construtor new Date() aceita argumentos como "2022/01/02". Possui getters e setters para ano, hora, dia da semana, dia do mes, segundos, minutos, milisegundos...
+
+```js
+let date;
+setInterval(update, 1000);
+
+function update() {
+  date = new Date();
+  formatTime();
+
+  function formatTime() {
+    let hours = formatZeroes(date.getHours());
+    let minutes = formatZeroes(date.getMinutes());
+    let seconds = formatZeroes(date.getSeconds());
+    console.log(`${hours}:${minutes}:${seconds}`);
+  }
+
+  function formatZeroes(time) {
+    return time.toString().length < 2 ? `0${time}` : time;
+  }
+}
+```
+
+## Promise
+
+Objeto que encapsula o resultado de uma operação assíncrona, deixa que métodos assíncronos retornem valorem como se fossem métodos síncronos. "Eu prometo retornar algo no futuro."
+Primeiramente o estado de uma promise é 'pending' depois 'fulfilled' ou 'rejected', o resultado é o que pode ser retornado.
+
+```js
+const promise = new Promise((reject, resolve) => {
+  let fileLoaded = false;
+  // let fileLoaded = true;
+
+  if (fileLoaded) resolve("File loaded!");
+  else reject("File NOT loaded");
+})
+  .then((value) => {
+    // Bloco chamado quando a promise é resolvida, tem como parametro o que foi passado como argumento no resolve.
+    console.log(value);
+  })
+  .catch((error) => {
+    // Bloco chamado quando a promise é rejeitada, tem como parametro o que foi passado como argumento no reject.
+    console.log(error);
+  });
+
+const wait = (
+  time,
+  name // Maneira de passar argumentos para uma promise
+) =>
+  new Promise((resolve) => {
+    setTimeout(resolve, time);
+    console.log(`${name}...`);
+  }).then(() => {
+    console.log("Thanks for waiting!");
+  });
+
+wait(2000, "Henrique"); // Maneira de passar argumentos para uma promise
+```
+
+## Async
+
+Faz com que uma função retorna uma promise.
+
+```js
+async function loadFile() {
+  let fileLoaded = false;
+
+  if (fileLoaded) return "File loaded!"; // uma async function return um "resolve"
+
+  throw "File NOT loaded!"; // pode jogar um erro para o catch
+}
+
+loadFile()
+  .then((value) => console.log(value))
+  .catch((error) => console.log(error));
+```
+
+## Await
+
+Faz com que uma async funtions espere por uma promise
+
+```js
+async function loadFile() {
+  let fileLoaded = true;
+
+  if (fileLoaded) return "File loaded!";
+
+  throw "File NOT loaded!";
+}
+
+async function startProcess() {
+  try {
+    let message = await loadFile();
+    console.log(message);
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+startProcess();
+```
+
+## HTML elements
+
+### Selecionar um elemento
+
+```js
+// Seleciona e retorna o elemento do body por id
+let elementId = document.getElementById("umId");
+// Seleciona e retorna uma node list de elementos do body por classe
+let elementsClass = document.getElementsByClassName("umaClasse");
+// Seleciona e retorna uma node list de elementos do body por name
+let elementsName = document.getElementsByName("umNome");
+// Seleciona e retorna uma node list de elementos do body por tag html
+let elementsTag = document.getElementsByTagName("li");
+
+// Seleciona e retorna o primeiro elemento do body por id/classe/tagName/atributo
+let elementQueryId = document.querySelector("#umId");
+let elementQueryClass = document.querySelector(".umaClasse");
+let elementQueryTag = document.querySelector("li");
+let elementQueryAttribute = document.querySelector("[for]");
+
+// Seleciona e retorna uma node list de elementos do body por classe/tagName/atributo
+let elementsQueryClass = document.querySelectorAll(".umaClasse");
+let elementsQueryTag = document.querySelectorAll("li");
+let elementsQueryAttribute = document.querySelectorAll("[for]");
+```
+
+### DOM traversal
+
+Relação entre os elementos do DOM
+
+```js
+let parent = document.querySelector("#umId");
+let children = Array.from(parent.children); // converte os elementos filhos em um array iteravel
+
+// parent.nextElementSibling -> seleciona o próximo elemento irmão
+// parent.previousElementSibling -> seleciona o elemento anterior irmão
+// parent.firstElementChild -> seleciona o primeiro elemento filho
+// parent.lastElementChild -> seleciona o último elemento filho
+// children.parentElement -> seleciona o elemento pai
+// .children[i] -> seleciona um filho do array de filhos (que foi recuperado por Array.from(parent.children)
+```
+
+### Adicionar e alterar elementos
+
+.innerHTML -> Vulnerável a ataques XSS (cross side scripts)
+.textContent -> mais seguro
+
+```js
+// Cria um h1 com o conteudo digitado pelo usuário e acrescenta ele ao body
+const nameTag = document.createElement("h1");
+nameTag.textContent = window.prompt("Digite um nome: ");
+document.body.append(nameTag);
+
+// Cria uma ul e acrescenta ele ao body
+const myList = document.createElement("ul");
+document.body.append(myList);
+
+// Cria 3 li's com conteudo e id, são acrescentados a ul.
+const listItem = document.createElement("li");
+listItem.textContent = "laranja 1 ";
+listItem.id = "laranja";
+const listItem2 = document.createElement("li");
+listItem2.textContent = "limao 2";
+listItem2.id = "limao";
+const listItem3 = document.createElement("li");
+listItem3.textContent = "pessego 3";
+listItem3.id = "pessego";
+myList.append(listItem);
+myList.append(listItem2);
+myList.append(listItem3);
+
+// Cria um quarto li com conteudo e id, é acrescentado a ul e anteriormente ao li 3
+const listItem4 = document.createElement("li");
+listItem4.textContent = "mamao 4";
+listItem4.id = "mamao";
+myList.insertBefore(listItem4, listItem3);
+```
+
+## Eventos
+
+```js
+const element = document.querySelector("body");
+
+const elementBtn = document.createElement("button");
+elementBtn.textContent = "botão";
+element.append(elementBtn);
+
+element.onload = doSomething;
+elementBtn.onclick = doSomething;
+elementBtn.onmousedown = doSomething;
+elementBtn.onmouseover = doSomething;
+elementBtn.onmouseenter = doSomething;
+elementBtn.onmouseout = doSomething;
+elementBtn.onmouseleave = doSomething;
+elementBtn.onmouseup = doSomething;
+elementBtn.onmousemove = doSomething;
+// etc
+
+function doSomething(evento) {
+  console.log(`O evento ${evento.type} foi ativado!`);
+}
+```
+
+### addEventListener
+
+É possível adicionar varios event handlres a um elemento, até mesmo o mesmo evento que chama diferentes funções.
+
+```js
+window.addEventListener("resize", onResize);
+window.addEventListener("scroll", () => {
+  console.log(window.scrollY);
+});
+
+function onResize() {
+  console.log(window.innerWidth);
+}
 ```
