@@ -866,3 +866,52 @@ function onResize() {
   console.log(window.innerWidth);
 }
 ```
+
+## Cookies
+
+É um pequeno arquivo de texto guardado no seu computador utilizado para lembrar informações sobre o usuário que são salvas em pares name=value
+
+```js
+// 1 argumento -> Chave=valor; 2 argumento -> Data de expiração do cookie; 3 argumento -> Rota que o cookie é válido
+// document.cookie = "nome=Henrique; expires=Sun, 3 April 2022 15:30:00 UTC; path=/";
+// console.log(document.cookie)
+
+const user = {
+  email: "hacmelo@gmail.com",
+  nome: "Henrique Melo",
+  cpf: "04906859194",
+  isAdmin: true,
+};
+
+setCookie("user", JSON.stringify(user), 2);
+setCookie("nome", "Henrique", 2);
+setCookie("sobrenome", "Melo", 2);
+
+console.log(getCookie("user"));
+console.log(getCookie("nome"));
+console.log(getCookie("sobrenome"));
+
+deleteCookie("nome");
+deleteCookie("sobrenome");
+
+function setCookie(key, value, hoursToExpire) {
+  const date = new Date();
+  date.setTime(date.getTime() + hoursToExpire * 60 * 60 * 1000);
+  let expiration = date.toUTCString();
+  document.cookie = `${key}=${value};expires=${expiration};path=/`;
+}
+
+function deleteCookie(key) {
+  setCookie(key, null, null);
+}
+
+function getCookie(key) {
+  const cookieDecoded = decodeURIComponent(document.cookie);
+  const cookieArray = cookieDecoded.split("; ");
+  let result = null;
+  cookieArray.forEach((cookie) => {
+    if (cookie.split("=")[0] == key) result = cookie.split("=")[1];
+  });
+  return result;
+}
+```
